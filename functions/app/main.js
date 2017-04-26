@@ -9,14 +9,17 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var currentUID;
+var currentUID,
+  current_user_name;
 
 
 function loadUserGameInfo() {
 
-  return getGameDataValues(['target_name', 'hunted-by-weapon', 'death_code', 'weapon', 'status/alive']).then((object) => {
+  return getGameDataValues(['target_name', 'death_code', 'weapon', 'status/alive']).then((object) => {
 
-    $('#user-game-data').html(JSON.stringify(object, null, '  '));
+    // $('#user-game-data').html(JSON.stringify(object, null, '  '));
+
+    $('#current-uid').html('Hej ' + current_user_name + ', du är <b>' + (object['status/alive'] ? 'i liv' : 'död') + '</b>!' + '<br>Du ska döda ' + object.target_name + ' med en/ett ' + object.weapon);
 
   });
 
@@ -29,8 +32,19 @@ function onAuthStateChanged(user) {
   if (user) {
     // logged in!
     currentUID = user.uid;
+
+    console.log(user);
+
+    $('#sign-in-form').hide();
+
+    // $('#user-game-data').html(JSON.stringify(user, null, '  '));
+    // JSON.stringify(user);
+
+    // registerUser(user);
+    current_user_name = user.displayName;
+
     loadUserGameInfo();
-    $('#current-uid').text(currentUID);
+    $('#current-uid').text('Hej ' + user.displayName);
   } else {
     currentUID = null;
   }

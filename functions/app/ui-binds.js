@@ -91,7 +91,13 @@ $(() => {
     }
 
     getGameDataValues([code]).then((data) => {
-      let target_uid = Object.values(data)[0];
+
+      let data_values = Object.keys(data).map((key) => {
+          return data[key];
+      });
+
+      let target_uid = data_values[0];
+
 
       if ( ! data[code] ) {
         throw new Error('invalid code');

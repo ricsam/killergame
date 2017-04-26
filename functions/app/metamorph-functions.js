@@ -152,7 +152,7 @@ function getGameData(registerSnapshot, itemsSnapshot) {
     }
 
     game_data[keys[i]] = {
-      target_name: register_data[keys[future_index]].email, // target name
+      target_name: register_data[keys[future_index]].name, // target name
       weapon: items[i % items.length],
       "hunted-by-weapon": items[previous_index % items.length],
       death_code: register_data[keys[i]].code,
@@ -172,6 +172,7 @@ function getGameDataValues(data, uid) { return new Promise((resolve, reject) => 
 
   uid = uid || firebase.auth().currentUser.uid;
   let object = {};
+
 
   data.forEach((key) => {
     let ref = fb.database().ref('/game_data/' + uid + '/' + key);
@@ -219,10 +220,12 @@ function setInitialGameData() {
 
 function registerUser(user) {
 
-  if ( user.providerData && user.providerData.length === 1 && user.providerData[0].providerId === 'password' ) {
+
+  if ( ! user.displayName ) {
+    console.log(user);
     return;
   }
-  
+
   let registerRef = fb.database().ref('/users/register');
 
   return registerRef.once('value').then(registerSnapshot => {
@@ -234,7 +237,7 @@ function registerUser(user) {
     let new_user = {};
     new_user[user.uid] = {
       code,
-      email: user.email,
+      email: user.email || 'email-not-set',
       name: user.displayName || 'Anonymous'
     };
 
