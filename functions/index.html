@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KGK</title>
+
+  <style>
+    .container {
+      margin: 10px auto;
+    }
+    #register-kgk-form, #sign-in-kgk-form {
+      display: none;
+    }
+    #logout {
+      position: absolute;
+      top: 0;
+      left: 100%;
+      margin-left: -100px;
+      width: 100px;
+    }
+
+  </style>
+
+
+
+</head>
+<body>
+
+  <h3 class="logo">Kemi killergame</h3>
+
+  <div class="container">
+    
+
+    <p style="text-align: center">Logga in mha befintligt konto på facebook, google, twitter eller registrera konto här</p>
+
+    <p id="current-uid"></p>
+
+    <pre id='user-game-data'></pre>
+
+    <button id="logout">Sign out</button>
+
+    <div id="sign-in-form">
+      <button id="auth-fb">Logga in med Facebook</button><br>
+      <button id="auth-google">Logga in med Google</button><br>
+      <button id="sign-in-kgk">Logga in med killergame konto</button><br>
+      <hr>
+    </div>
+    <div id='register-kgk-form'>
+      <a href="#" onclick="$('#sign-in-form').show(); $(this).parent().hide()">Back</a><br>
+      <input type="text" placeholder="Email" id='kgk-register-email'><br>
+      <input type="text" placeholder="Name" id='kgk-register-name'><br>
+      <input type="password" placeholder="password" id='kgk-register-pw'><br>
+      <input type="password" placeholder="confirm password"><br>
+      <button id='register'>Register</button>
+    </div>
+    <div id='sign-in-kgk-form'>
+      <a href="#" onclick="$('#sign-in-form').show(); $(this).parent().hide()">Back</a><br>
+      <input type="text" placeholder="Email" id='kgk-login-email'><br>
+      <input type="password" placeholder="password" id='kgk-login-password'><br>
+      <button id='auth-kgk'>Login</button>
+    </div>
+
+  </div>
+  <button id='admin-register-kgk-account'>ADMIN REGISTER USER</button>
+  <button id='admin-start-game'>ADMIN START GAME</button>
+  <input type="text" placeholder="KILLCODE" id='killcode' value=''>
+  <button id='kill'>KILL</button>
+
+
+  <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+
+  <script src='app/metamorph-functions.js'></script>
+  <script src='app/main.js'></script>
+  <script src='app/ui-binds.js'></script>
+</body>
+</html>
