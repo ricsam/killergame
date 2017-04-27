@@ -9,9 +9,11 @@ const fb = (() => {
     const admin = require('firebase-admin');
     admin.initializeApp(functions.config().firebase);
     ob.database = admin.database;
+    ob.messaging = admin.messaging;
   } else {
     // browser
     ob.database = firebase.database;
+    ob.messaging = firebase.messaging;
   }
 
 
@@ -53,23 +55,54 @@ function killUser(status, dead_man_uid, killer_uid) {
 
 
         return fb.database().ref('/game_data/' + killer_uid).set(new_user_data).then(() => {
-          return fb.database()
-            .ref('game_data/' + dead_user_data[keylock] + '/status/allowed_write_uid')
-            .set(killer_uid);
-        });
+        return fb.database().ref('game_data/' + dead_user_data[keylock] + '/status/allowed_write_uid').set(killer_uid).then(() => {
+        return fb.database().ref('/users/register/' + killer_uid + '/tokens').once('value');
+        }).then((tokensSnap) => {
+          if ( ! tokensSnap.exists() ) return;
 
+          let tokens = Object.keys(tokensSnap.val());
 
-      });
-
+          return fb.messaging().sendToDevice(tokens, {data: {new_target: "true"}});
+        })});
+      }); 
 
     });
 
-  } else {
+  } else if (status !== false) {
     throw new Error(`Status: ${status}, dead_man_uid: ${dead_man_uid}, killer_uid: ${killer_uid}`);
   }
   // return ('user is still alive!');
 
 }
+
+function updateEveryClientUserTarget() {
+  return getAllTokens().then(updateClientUserTarget);
+}
+
+function updateClientUserTarget(tokens) {
+  if ( ! tokens || ! tokens.length ) return;
+  return fb.messaging().sendToDevice(tokens, {data: {new_target: "true"}});
+}
+
+function getAllTokens() { return new Promise((resolve) => {
+  let tokens = [];
+  let registerRef = fb.database().ref('/users/register');
+  registerRef.once('value').then((registerSnapshot) => {
+    registerSnapshot.forEach((userSnapshot) => {
+      if (userSnapshot.hasChild('tokens')) {
+        let user_tokens = Object.keys(userSnapshot.child('tokens').val());
+        tokens = Array.prototype.concat.call([], tokens, user_tokens);
+      }
+    });
+
+    resolve(
+      tokens.filter((item, index) => {
+        return tokens.indexOf(item) === index;
+      })
+    );
+  });
+
+})}
 
 
 function randomIntFromInterval(min,max) {
@@ -151,6 +184,12 @@ function getGameData(registerSnapshot, itemsSnapshot) {
       previous_index = i - 1;
     }
 
+    if (typeof register_data[keys[future_index]].name === 'undefined' ) {
+      console.log(register_data);
+      console.log(keys);
+      console.log(future_index);
+    }
+
     game_data[keys[i]] = {
       target_name: register_data[keys[future_index]].name, // target name
       weapon: items[i % items.length],
@@ -192,28 +231,14 @@ function getGameDataValues(data, uid) { return new Promise((resolve, reject) => 
   
 })}
 
-function getItems(cb) {
-  return fb.database().ref('/items').once('value').then(cb);
-}
-
 function setInitialGameData() {
   let registerRef = fb.database().ref('/users/register');
 
   return registerRef.once('value').then(registerSnapshot => {
-
-    return getItems((itemsSnapshot) => {
-      let gd = getGameData(registerSnapshot, itemsSnapshot);
-      fb.database().ref('/game_data').update(gd).then(() => {
-
-        console.log('game data set');
-
-      }).catch((err) => console.log(err));
-
-      console.log(gd);
+    return fb.database().ref('/items').once('value').then((itemsSnapshot) => {
+      let game_data = getGameData(registerSnapshot, itemsSnapshot);
+      return fb.database().ref('/game_data').update(game_data);
     });
-
-  }).catch(error => {
-    console.log(error);
   });
 
 }
@@ -254,7 +279,11 @@ function cloudFunctionKillUser(event) {
 
   return killerUIDRef.once('value').then((killerUIDsnapshot) => {
     let killer_uid = killerUIDsnapshot.val();
-    return killUser(event.data.val(), uid, killer_uid);
+    if (event.data.previous.val() === true && event.data.val() === false) { // was alive and now dead
+      return killUser(event.data.val(), uid, killer_uid);
+    } else {
+      return; // at restarts of the game when data.previous.val() === false and data.val() === true the killUser should not be called!
+    }
   });
 
 }
@@ -264,7 +293,8 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     registerUser,
     cloudFunctionKillUser,
-    setInitialGameData
+    setInitialGameData,
+    updateEveryClientUserTarget
   }
 }
 

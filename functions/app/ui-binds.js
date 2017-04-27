@@ -1,8 +1,8 @@
 $(() => {
 
-	$('#sign-in-kgk').click((ev) => {
-  	$('#sign-in-kgk-form').show();
-  	$('#sign-in-form').hide();
+  $('#sign-in-kgk').click((ev) => {
+    $('#sign-in-kgk-form').show();
+    $('#sign-in-form').hide();
   });
 
 
@@ -24,11 +24,17 @@ $(() => {
 
   $('#logout').click(() => {
     firebase.auth().signOut();
+    $('#kill-code-form,#kip,#user-info,#logout').hide();
+    $('#sign-in-form').show();
   });
 
   $('#admin-register-kgk-account').click(() => {
     $('#register-kgk-form').show();
   });
+
+  // $('#enable-notifications').click(() => {
+  //   handleTokenPermission();
+  // });
 
   $('#register').click(() => {
 
@@ -83,49 +89,65 @@ $(() => {
 
   $('#kill').click(() => {
 
-    let code = $('#killcode').val();
-    let user = firebase.auth().currentUser;
-
-    if ( ! code.length ) {
-      return console.log('invalid code');
-    }
-
-    getGameDataValues([code]).then((data) => {
-
-      let data_values = Object.keys(data).map((key) => {
-          return data[key];
-      });
-
-      let target_uid = data_values[0];
-
-
-      if ( ! data[code] ) {
-        throw new Error('invalid code');
-        return;
-      }
-
-      let targetAliveRef = firebase.database().ref('/game_data/' + target_uid + '/status/alive');
-      return targetAliveRef.set(false).then(() => {
-        $('#user-game-data').text('Loading new target...');
-
-        // return getGameDataValues(['status/alive'], target_uid).then((data) => {
-          // let alive_status = Object.values(data)[0];
-          // if using admin on client
-          // return killUser(alive_status, target_uid, firebase.auth().currentUser.uid);
-        // });
-      });
-
-
-    }).then((status) => {
-
-      console.log('That user is now dead, you have a new target!');
-      setTimeout(loadUserGameInfo, 4000);
-
-    }).catch(err => console.log(err));
+    killSomeone();
 
   });
 
 
+  function noKillingInProgress() {
+    loadUserGameInfo().then(() => {
+      $('#kip').hide();
+      $('#kill-code-form,#user-info').show();
+      $('#killcode').val('');
+    });
+  }
+
 
   firebase.auth().onAuthStateChanged(onAuthStateChanged);
+
+  let messaging = firebase.messaging();
+
+  messaging.onTokenRefresh(() => {
+    messaging.getToken()
+    .then((refreshedToken) => {
+
+      if (currentToken !== refreshedToken) {
+
+        console.log('Token is refreshed, will update!');
+
+        let tokensReference = firebase.database().ref('/users/register/' + currentUID + '/tokens');
+
+        tokensReference.child(currentToken).remove().then(() => {
+
+          return tokensReference.once('value');
+
+        })
+        .then((tokensSnapshot) => {
+          if ( ! tokensSnapshot.hasChild(token) ) {
+            tokensReference.child(refreshedToken).set(navigator.userAgent);
+          }
+        });
+
+      }
+
+    })
+    .catch((err) => {
+      console.log('Unable to retrieve refreshed token ', err);
+    });
+  });
+
+
+  messaging.onMessage((payload) => {
+    console.log(payload);
+    if (payload && payload.data && payload.data.new_target) {
+      noKillingInProgress();
+    }
+  });
+
+  navigator.serviceWorker.addEventListener('message', function(event) { // will be called if the page is in the background
+    console.log('Received a message from service worker: ', event.data);
+    if (event.data && event.data.new_target) {
+      noKillingInProgress();
+    }
+  });
 });

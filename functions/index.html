@@ -5,13 +5,14 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/app/assets/favicons/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
   <title>KGK</title>
 
   <style>
     .container {
       margin: 10px auto;
     }
-    #register-kgk-form, #sign-in-kgk-form {
+    #logout, #push-notifications-form, #user-info, #kip, #kill-code-form, #register-kgk-form, #sign-in-kgk-form {
       display: none;
     }
     #logout {
@@ -21,7 +22,11 @@
       margin-left: -100px;
       width: 100px;
     }
-
+    
+    #push-notifications-form {
+      border: 1px solid rgb(150, 150, 150);
+      padding: 15px;
+    }
   </style>
 
 
@@ -29,27 +34,28 @@
 </head>
 <body>
 
-  <h3 class="logo">Kemi killergame</h3>
+  <img src="app/assets/logo.png" alt="">
 
   <div class="container">
     
 
-    <p style="text-align: center"><h1>Instructions</h1><br>Logga in mha befintligt konto på facebook, google, twitter eller registrera konto här</p>
 
-    <hr>
-    <br>
-
-    <p id="current-uid"></p>
+    <div id='user-info'></div>
 
     <pre id='user-game-data'></pre>
+    <div id="kip">
+      <img src="app/assets/kip.gif" alt="">
+      <p>Använder du Safari? ladda om sidan efter en liten stund så får du ett nytt offer</p>
+    </div>
 
     <button id="logout">Sign out</button>
 
     <div id="sign-in-form">
+      <p>Skapa konto genom att logga in mha befintligt konto från facebook eller google<br><small>(du kan också få ett kg-konto ifall du inte gillar facebook/google)</small></p>
+      
       <button id="auth-fb">Logga in med Facebook</button><br>
       <button id="auth-google">Logga in med Google</button><br>
       <button id="sign-in-kgk">Logga in med killergame konto</button><br>
-      <hr>
     </div>
     <div id='register-kgk-form'>
       <a href="#" onclick="$('#sign-in-form').show(); $(this).parent().hide()">Back</a><br>
@@ -66,11 +72,19 @@
       <button id='auth-kgk'>Login</button>
     </div>
 
+    <div id='push-notifications-form'>
+      <h3>Sidan fungerar bättre ifall notifikationer sätts på</h3><h5>(det är mest bakgrundsgrejer som man inte ser)</h5>
+      <a href="https://support.google.com/chrome/answer/3220216" target="_blank">Hur sätter man på?</a>
+      <!-- <button id='enable-notifications'>Enable notifications</button> -->
+    </div>
+
   </div>
   <!-- <button id='admin-register-kgk-account'>ADMIN REGISTER USER</button> -->
   <!-- <button id='admin-start-game'>ADMIN START GAME</button> -->
-  <input type="text" placeholder="KILLCODE" id='killcode' value=''>
-  <button id='kill'>KILL</button>
+  <div id='kill-code-form'>
+    <input type="text" placeholder="KILLCODE" id='killcode' value=''>
+    <button id='kill'>KILL</button>
+  </div>
 
 
   <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>

@@ -3,7 +3,7 @@ var functions = require('firebase-functions');
 // admin.initializeApp(functions.config().firebase);
 
 
-const { registerUser, cloudFunctionKillUser, setInitialGameData } = require('./app/metamorph-functions.js');
+const { registerUser, cloudFunctionKillUser, setInitialGameData, updateEveryClientUserTarget } = require('./app/metamorph-functions.js');
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -16,7 +16,9 @@ exports.helloWorld = functions.https.onRequest((req, res) => {
 
   res.end('Game started!');
 
-  return setInitialGameData();
+  return setInitialGameData().then(() => {
+    updateEveryClientUserTarget();
+  }).catch(err => console.log(err));
 
 
 });
