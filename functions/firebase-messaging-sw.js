@@ -23,6 +23,10 @@ const messaging = firebase.messaging();
 messaging.setBackgroundMessageHandler(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
+  if ( ! payload || ! payload.data || ! payload.data.backgroundNotification ) {
+    return;
+  }
+
   if (payload && payload.data && payload.data.new_target) {
     const notificationTitle = 'Killing is done';
     const notificationOptions = {

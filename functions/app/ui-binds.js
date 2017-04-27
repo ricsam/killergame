@@ -17,7 +17,11 @@ $(() => {
   });
 
   $('#auth-kgk').click(() => {
-    firebase.auth().signInWithEmailAndPassword($('#kgk-login-email').val(), $('#kgk-login-password').val()).catch(err => {
+    firebase.auth().signInWithEmailAndPassword($('#kgk-login-email').val(), $('#kgk-login-password').val())
+    .then(() => {
+      $('#sign-in-kgk-form').hide();
+    })
+    .catch(err => {
       console.log(err);
     });
   });
@@ -28,8 +32,9 @@ $(() => {
     $('#sign-in-form').show();
   });
 
-  $('#admin-register-kgk-account').click(() => {
+  $('#register-kgk-account').click(() => {
     $('#register-kgk-form').show();
+    $('#sign-in-kgk-form').hide();
   });
 
   // $('#enable-notifications').click(() => {
@@ -40,6 +45,7 @@ $(() => {
 
     let email = $('#kgk-register-email').val();
     let password = $('#kgk-register-pw').val();
+    let name = $('#kgk-register-name').val();
 
     if (email.length < 4) {
       alert('Please enter an email address.');
@@ -51,19 +57,32 @@ $(() => {
       return;
     }
 
+    if (password !== $('#kgk-register-pw-confirm').val()) {
+      alert('The passwords do not match.');
+      return;
+    }
+
+    if (name.length <= 6) {
+      if ( ! confirm('Is that name corret?')) {
+        return;
+      }
+    }
+
 
     firebase.auth().createUserWithEmailAndPassword(email, password).then((user) => {
 
-      let name = $('#kgk-register-name').val();
       return user.updateProfile({
         displayName: name
-      }).then(() => {
-        return addKGKUserData(user, name);
       })
+      .then(() => {
+        return addKGKUserData(user, name);
+      });
+
     })
     .then((user) => {
-      // let user = firebase.auth().currentUser;
-      console.log('even called?');
+
+      $('#register-kgk-form').hide();
+      return displayTheUserInfo();
 
     })
     .catch(function(error) {
@@ -74,7 +93,7 @@ $(() => {
       if (errorCode == 'auth/weak-password') {
         alert('The password is too weak.');
       } else {
-        alert(errorMessage);
+        console.log(errorCode, errorMessage);
       }
       console.log(error);
       // [END_EXCLUDE]
@@ -149,5 +168,11 @@ $(() => {
     if (event.data && event.data.new_target) {
       noKillingInProgress();
     }
+  });
+
+  $('form').on('submit', (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    return false;
   });
 });

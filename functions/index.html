@@ -3,10 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="">
+  <meta name="description" content="Kemi killergame">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="/app/assets/favicons/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
+
+  <!-- Add to homescreen for Chrome on Android -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="icon" sizes="114x114" href="app/assets/favicons/apple-touch-icon-precomposed.png">
+
   <title>KGK</title>
+
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
 
   <style>
     .container {
@@ -19,13 +31,26 @@
       position: absolute;
       top: 0;
       left: 100%;
-      margin-left: -100px;
-      width: 100px;
+      margin-left: -80px;
+      width: 70px;
     }
     
     #push-notifications-form {
       border: 1px solid rgb(150, 150, 150);
       padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .form-links {
+      width: 150px;
+    }
+    .form-links a:last-of-type {
+      float: right;
+    }
+
+    #user-info {}
+    .logo {
+      margin-bottom: 20px;
     }
   </style>
 
@@ -34,10 +59,13 @@
 </head>
 <body>
 
-  <img src="app/assets/logo.png" alt="">
 
   <div class="container">
     
+    <div class="logo">
+      
+      <img src="app/assets/logo.png" alt="">
+    </div>
 
 
     <div id='user-info'></div>
@@ -45,54 +73,139 @@
     <pre id='user-game-data'></pre>
     <div id="kip">
       <img src="app/assets/kip.gif" alt="">
-      <p>Använder du Safari? ladda om sidan efter en liten stund så får du ett nytt offer</p>
+      <p id="kip-ios-message">På IOS? ladda om sidan manuellt tills du får ett nytt offer</p>
     </div>
 
-    <button id="logout">Sign out</button>
+    <button id="logout" class="btn btn-danger btn-sm">Log out</button>
 
     <div id="sign-in-form">
-      <p>Skapa konto genom att logga in mha befintligt konto från facebook eller google<br><small>(du kan också få ett kg-konto ifall du inte gillar facebook/google)</small></p>
-      
-      <button id="auth-fb">Logga in med Facebook</button><br>
-      <button id="auth-google">Logga in med Google</button><br>
-      <button id="sign-in-kgk">Logga in med killergame konto</button><br>
+      <p>Skapa konto genom att logga in mha befintligt konto från facebook eller google</p>
+      <div class="btn-group-vertical btn-group-lg">
+        <button type="button" class="btn btn-secondary" id="auth-fb">Logga in med Facebook</button>
+        <button type="button" class="btn btn-secondary" id="auth-google">Logga in med Google</button>
+      </div>
+      <div>
+        <small>Vill du inte använda facebook/google?</small><br>
+        <button id="sign-in-kgk" class="btn btn-secondary">Logga in med killergame konto</button><br>
+      </div>
     </div>
-    <div id='register-kgk-form'>
-      <a href="#" onclick="$('#sign-in-form').show(); $(this).parent().hide()">Back</a><br>
-      <input type="text" placeholder="Email" id='kgk-register-email'><br>
-      <input type="text" placeholder="Name" id='kgk-register-name'><br>
-      <input type="password" placeholder="password" id='kgk-register-pw'><br>
-      <input type="password" placeholder="confirm password"><br>
-      <button id='register'>Register</button>
+
+
+
+
+
+
+
+
+
+    <div id='register-kgk-form' class="container">
+      <form>
+        <div class="form-group row">
+          <div class="col-sm-2">
+          </div>
+          <div class="col-sm-10">
+            <a href="#" onclick="$('#sign-in-kgk-form').show(); $('#register-kgk-form').hide()" class="float-sm-right">Back</a><br>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="kgk-register-email" class="col-sm-2 col-form-label">Email</label>
+          <div class="col-sm-10">
+            <input type="email" class="form-control" id="kgk-register-email" placeholder="Email">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="kgk-register-name" class="col-sm-2 col-form-label">Name</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="kgk-register-name" placeholder="Name">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="kgk-register-pw" class="col-sm-2 col-form-label">Password</label>
+          <div class="col-sm-10">
+            <input type="password" class="form-control" id="kgk-register-pw" placeholder="Password">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="kgk-register-pw-confirm" class="col-sm-2 col-form-label">Confirm password</label>
+          <div class="col-sm-10">
+            <input type="password" class="form-control" id="kgk-register-pw-confirm" placeholder="Confirm password">
+          </div>
+        </div>
+        <div class="form-group row">
+          <div class="offset-sm-2 col-sm-10">
+            <button type="submit" class="btn btn-primary" id="register">Register</button>
+          </div>
+        </div>
+      </form>
     </div>
-    <div id='sign-in-kgk-form'>
-      <a href="#" onclick="$('#sign-in-form').show(); $(this).parent().hide()">Back</a><br>
-      <input type="text" placeholder="Email" id='kgk-login-email'><br>
-      <input type="password" placeholder="password" id='kgk-login-password'><br>
-      <button id='auth-kgk'>Login</button>
+
+    <div id='sign-in-kgk-form' class="container">
+      <form>
+        <div class="form-group row">
+          <div class="col-sm-2">
+          </div>
+          <div class="col-sm-10">
+            <a href="#" onclick="$('#sign-in-form').show(); $('#sign-in-kgk-form').hide()" class="float-sm-right">Back</a><br>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="kgk-login-email" class="col-sm-2 col-form-label">Email</label>
+          <div class="col-sm-10">
+            <input type="email" class="form-control" id="kgk-login-email" placeholder="Email">
+          </div>
+        </div>        
+        <div class="form-group row">
+          <label for="kgk-login-password" class="col-sm-2 col-form-label">Password</label>
+          <div class="col-sm-10">
+            <input type="password" class="form-control" id="kgk-login-password" placeholder="Password">
+          </div>
+        </div>        
+
+        <div class="form-group row">
+
+
+          <div class="offset-sm-2 col-sm-10">
+            <button type="submit" class="btn btn-primary" id="auth-kgk">Login</button>
+            <label class="col-form-label">
+              Inget konto?
+              <a href="#" id="register-kgk-account">Register</a>
+            </label>
+          </div>
+        </div>
+      </form>
+
     </div>
 
     <div id='push-notifications-form'>
-      <h3>Sidan fungerar bättre ifall notifikationer sätts på</h3><h5>(det är mest bakgrundsgrejer som man inte ser)</h5>
+      <h3>Sidan fungerar bättre ifall notifikationer sätts på</h3><h5>(det är mest bakgrundsgrejer)</h5>
       <a href="https://support.google.com/chrome/answer/3220216" target="_blank">Hur sätter man på?</a>
       <!-- <button id='enable-notifications'>Enable notifications</button> -->
+    </div>
+
+
+    <div id="kill-code-form">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Kill code" id="killcode">
+        <span class="input-group-btn">
+          <button class="btn btn-secondary" type="button" id="kill">Kill!</button>
+        </span>
+      </div>
     </div>
 
   </div>
   <!-- <button id='admin-register-kgk-account'>ADMIN REGISTER USER</button> -->
   <!-- <button id='admin-start-game'>ADMIN START GAME</button> -->
-  <div id='kill-code-form'>
-    <input type="text" placeholder="KILLCODE" id='killcode' value=''>
-    <button id='kill'>KILL</button>
-  </div>
 
 
   <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
-  <script
+<!--   <script
   src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
   crossorigin="anonymous"></script>
-
+ -->
   <script src='app/metamorph-functions.js'></script>
   <script src='app/main.js'></script>
   <script src='app/ui-binds.js'></script>

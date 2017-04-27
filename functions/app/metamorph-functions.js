@@ -10,6 +10,7 @@ const fb = (() => {
     admin.initializeApp(functions.config().firebase);
     ob.database = admin.database;
     ob.messaging = admin.messaging;
+    ob.admin = admin;
   } else {
     // browser
     ob.database = firebase.database;
@@ -149,8 +150,14 @@ function shuffle(array) {
   return array;
 }
 
+
 function getGameData(registerSnapshot, itemsSnapshot) {
   let register_data = registerSnapshot.val();
+
+  const filterGameDataUser = (key) => {
+    let user_data = register_data[key];
+    return user_data.hasOwnProperty('name') && user_data.hasOwnProperty('code') && user_data.name !== 'Anonymous-name' && user_data.name !== null;
+  };
 
   let game_data = {};
 
@@ -161,7 +168,7 @@ function getGameData(registerSnapshot, itemsSnapshot) {
       return items_data[key];
   });
 
-  let keys = shuffle(Object.keys(register_data)),
+  let keys = shuffle(Object.keys(register_data).filter(filterGameDataUser)),
       items = shuffle(items_values);
 
   if (keys.length < 2) {
@@ -231,10 +238,54 @@ function getGameDataValues(data, uid) { return new Promise((resolve, reject) => 
   
 })}
 
+
+function validateAndFixRegister() { return new Promise((resolve, reject) => { // only fix for manual KGK account creation
+  let fixes = 0,
+      fixed = 0;
+  
+  let registerRef = fb.database().ref('/users/register');
+
+  registerRef.once('value').then((registerSnapshot) => {
+    registerSnapshot.forEach((userSnapshot) => {
+      if ( ! userSnapshot.hasChild('name')  || userSnapshot.child('name').val() === null || userSnapshot.child('name').val() === 'Anonymous-name') {
+
+        fixes++;
+
+        fb.admin.auth().getUser(userSnapshot.key).then((userRecord) => {
+          if ( ! userRecord.displayName || userRecord.displayName !== 'Anonymous-name') {
+            return registerRef.child(userSnapshot.key + '/name').set(userRecord.displayName);
+          } else {
+            return true;
+          }
+        }).then(() => {
+
+          fixed++;
+          if (fixed === fixes) {
+            console.log('fixed: ' + fixed);
+            resolve();
+          }
+
+        }).catch(reject);
+
+      }
+    });
+    
+    if (fixes === 0) {
+      resolve();
+    }
+  }).catch(reject);
+
+
+  
+})}
+
 function setInitialGameData() {
   let registerRef = fb.database().ref('/users/register');
 
-  return registerRef.once('value').then(registerSnapshot => {
+  return validateAndFixRegister().then(() => {
+    return registerRef.once('value');
+  })
+  .then(registerSnapshot => {
     return fb.database().ref('/items').once('value').then((itemsSnapshot) => {
       let game_data = getGameData(registerSnapshot, itemsSnapshot);
       return fb.database().ref('/game_data').update(game_data);
@@ -244,12 +295,6 @@ function setInitialGameData() {
 }
 
 function registerUser(user) {
-
-
-  if ( ! user.displayName ) {
-    console.log(user);
-    return;
-  }
 
   let registerRef = fb.database().ref('/users/register');
 
@@ -263,10 +308,10 @@ function registerUser(user) {
     new_user[user.uid] = {
       code,
       email: user.email || 'email-not-set',
-      name: user.displayName || 'Anonymous'
+      name: user.displayName || 'Anonymous-name'
     };
 
-    registerRef.update(new_user);
+    return registerRef.update(new_user);
 
   });
 

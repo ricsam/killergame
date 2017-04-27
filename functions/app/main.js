@@ -118,6 +118,18 @@ function handleTokenPermission() {
   });    
 }
 
+function displayTheUserInfo() {
+
+  let user = firebase.auth().currentUser;
+
+  return loadUserGameInfo().then(() => {
+    $('#kill-code-form').show();
+  }).catch(err => {
+    // Client doesn't have permission to access the desired data
+    $('#user-info').html('Hej ' + user.displayName + '! Du är registrerad men omgången har redan påbörjats. Du kommer vara med nästa omgång');
+  });
+}
+
 function onAuthStateChanged(user) {
   if (user && currentUID === user.uid) {
     return;
@@ -130,22 +142,16 @@ function onAuthStateChanged(user) {
     $('#sign-in-form').hide();
     $('#user-info, #logout').show();
 
-    // JSON.stringify(user);
+    if ( ! user.displayName || user.displayName === 'Anonymous-name') { // only happens during manual registration, and the name is yet to be set
+      $('#user-info').html('Laddar...');
+    } else {
+      displayTheUserInfo();
+    }
 
-    // registerUser(user);
-    current_user_name = user.displayName;
-
-    loadUserGameInfo().then(() => {
-      $('#kill-code-form').show();
-    }).catch(err => {
-      // Client doesn't have permission to access the desired data
-      $('#user-info').html('Du är registrerad men omgången har redan påbörjats. Du kommer vara med nästa omgång');
-    });
     handleTokenPermission();
 
 
 
-    $('#current-uid').text('Hej ' + user.displayName);
   } else {
     currentUID = null;
   }
@@ -160,26 +166,7 @@ function signInWithPopup(provider) {
 }
 
 function addKGKUserData(user, name) {
-  let registerRef = firebase.database().ref('/users/register');
-  // admin code
-
-  return registerRef.once('value').then(registerSnapshot => {
-
-    let register_data = registerSnapshot.val();
-
-    let code = generateUserCode(register_data);
-
-    let new_user = {};
-    new_user[user.uid] = {
-      code,
-      email: user.email,
-      name: name
-    };
-
-    registerRef.update(new_user);
-
-  }).catch(error => {
-    console.log(error);
-  });
+  let registerNameRef = firebase.database().ref('/users/register/' + user.uid + '/name');
+  return registerNameRef.set(name);
 }
 
