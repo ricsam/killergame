@@ -29,6 +29,22 @@ function killUser(status, dead_man_uid, killer_uid) {
 
   if ( status === false && dead_man_uid && killer_uid )  {
 
+    if (dead_man_uid === killer_uid) {
+      return getAllTokens().then((tokens) => {
+        if ( ! tokens || ! tokens.length ) return;
+        return fb.admin.auth().getUser(killer_uid).then((userRecord) => {
+          return fb.messaging().sendToDevice(tokens, {
+            data: {
+              backgroundNotification: "true",
+              winner: userRecord.displayName
+            }
+          }).then(() => {
+            return fb.database().ref('/winner').set(userRecord.displayName);
+          });
+        });
+      });
+    }
+
     console.log('will kill', dead_man_uid, 'by', killer_uid);
     // getGameDataValues(['weapon', 'target_name',], dead_man_uid);
 
@@ -58,12 +74,18 @@ function killUser(status, dead_man_uid, killer_uid) {
         return fb.database().ref('/game_data/' + killer_uid).set(new_user_data).then(() => {
         return fb.database().ref('game_data/' + dead_user_data[keylock] + '/status/allowed_write_uid').set(killer_uid).then(() => {
         return fb.database().ref('/users/register/' + killer_uid + '/tokens').once('value');
-        }).then((tokensSnap) => {
-          if ( ! tokensSnap.exists() ) return;
+        }).then((killerTokensSnapshot) => {
 
-          let tokens = Object.keys(tokensSnap.val());
+          return fb.database().ref('/users/register/' + dead_man_uid + '/tokens').once('value').then((deadTokensSnapshot) => {
+            if ( ! killerTokensSnapshot.exists() && ! deadTokensSnapshot.exists() ) return;
+            let ktso = killerTokensSnapshot.val() || {},
+                dtso = deadTokensSnapshot.val() || {};
 
-          return fb.messaging().sendToDevice(tokens, {data: {new_target: "true"}});
+            let tokens = Object.keys(Object.assign({}, ktso, dtso));
+
+            return fb.messaging().sendToDevice(tokens, {data: {new_target: "true"}});
+          });
+
         })});
       }); 
 
@@ -282,10 +304,11 @@ function validateAndFixRegister() { return new Promise((resolve, reject) => { //
 function setInitialGameData() {
   let registerRef = fb.database().ref('/users/register');
 
-  return validateAndFixRegister().then(() => {
+  return fb.database().ref('/winner').remove().then(() => {
+    return validateAndFixRegister();
+  }).then(() => {
     return registerRef.once('value');
-  })
-  .then(registerSnapshot => {
+  }).then(registerSnapshot => {
     return fb.database().ref('/items').once('value').then((itemsSnapshot) => {
       let game_data = getGameData(registerSnapshot, itemsSnapshot);
       return fb.database().ref('/game_data').update(game_data);

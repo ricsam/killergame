@@ -23,33 +23,67 @@ const messaging = firebase.messaging();
 messaging.setBackgroundMessageHandler(function(payload) {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   // Customize notification here
-  if ( ! payload || ! payload.data || ! payload.data.backgroundNotification ) {
+  if ( ! payload || ! payload.data ) {
     return;
   }
 
-  if (payload && payload.data && payload.data.new_target) {
-    const notificationTitle = 'Killing is done';
-    const notificationOptions = {
-      body: 'You have a new target',
+  let notificationTitle;
+  let notificationOptions = {
       icon: '/app/assets/logo.png',
       click_action: 'https://killergame-42f36.firebaseapp.com/'
-    };
+  };
 
-    const promiseChain = clients.matchAll({
-      type: 'window',
-      includeUncontrolled: true
-    })
-    .then((windowClients) => {
-      for (let i = 0; i < windowClients.length; i++) {
-        const windowClient = windowClients[i];
-        windowClient.postMessage(payload.data);
-      }
-    })
-    .then(() => {
-      return self.registration.showNotification(notificationTitle, notificationOptions);
+  if (payload.data.new_target) {
+    notificationTitle = 'Killing is done';
+    notificationOptions = Object.assign({}, notificationOptions, {
+      body: 'You have a new target'
     });
-    return promiseChain;
-
   }
 
+  if (payload.data.winner) {
+    notificationTitle = 'There is a winner!';
+    notificationOptions = Object.assign({}, notificationOptions, {
+      body: 'GZ to ' + payload.data.winner + '!!'
+    });
+  }
+
+  const promiseChain = clients.matchAll({
+    type: 'window',
+    includeUncontrolled: true
+  }).then((windowClients) => {
+    for (let i = 0; i < windowClients.length; i++) {
+      const windowClient = windowClients[i];
+      windowClient.postMessage(payload.data);
+    }
+  }).then(() => {
+    if (payload.data.backgroundNotification && notificationTitle && notificationOptions.body) {
+      return self.registration.showNotification(notificationTitle, notificationOptions);
+    }
+  });
+
+  return promiseChain;
+
+
+});
+
+
+self.addEventListener('notificationclick', function(event) {
+  let url = 'https://killergame-42f36.firebaseapp.com/';
+  event.notification.close(); // Android needs explicit close.
+  event.waitUntil(
+    clients.matchAll({type: 'window'}).then( windowClients => {
+      // Check if there is already a window/tab open with the target URL
+      for (var i = 0; i < windowClients.length; i++) {
+          var client = windowClients[i];
+          // If so, just focus it.
+          if (client.url === url && 'focus' in client) {
+              return client.focus();
+          }
+      }
+      // If not, then open the target URL in a new window/tab.
+      if (clients.openWindow) {
+          return clients.openWindow(url);
+      }
+    })
+  );
 });

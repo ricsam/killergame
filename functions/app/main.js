@@ -18,22 +18,28 @@ function loadUserGameInfo() {
   return getGameDataValues(['target_name', 'death_code', 'weapon', 'status/alive']).then((object) => {
 
     let user = firebase.auth().currentUser;
-
-    $('#user-info').html(
-      'Hej '
+    let str = 'Hej '
       + user.displayName
-      + ', du är <b>'
-      + (object['status/alive'] ? 'i liv' : 'död')
-      + '</b>!'
-      + '<br>Du ska döda '
-      + object.target_name
-      + ' med en/ett '
-      + object.weapon
-      + '<div style="margin-top: 5px;"><i>Har du blivit dödad?</i> - i så fall uppge '
-      + "<pre style='display: inline; font-size: 16px'>"
-      + object.death_code
-      + "</pre></div>"
-      );
+      + ', du '
+      + (object['status/alive'] ? '<b>lever</b>' : 'är tyvärr <b>död</b>')
+      + '!';
+
+
+    if (object['status/alive']) {
+      str += ''
+        + '<br>Du ska döda '
+        + object.target_name
+        + ' med '
+        + object.weapon
+        + '<div style="margin-top: 5px;"><i>Har du blivit dödad?</i> - i så fall uppge '
+        + "<pre style='display: inline; font-size: 16px'>"
+        + object.death_code
+        + "</pre></div>";
+    }
+
+    $('#user-info').html(str);
+
+    return object['status/alive'];
 
   });
 
@@ -122,12 +128,23 @@ function displayTheUserInfo() {
 
   let user = firebase.auth().currentUser;
 
-  return loadUserGameInfo().then(() => {
-    $('#kill-code-form').show();
+  return loadUserGameInfo().then((alive) => {
+    if (alive) {
+      $('#kill-code-form').show();
+    } else {
+      $('#kill-code-form').hide();
+    }
   }).catch(err => {
     // Client doesn't have permission to access the desired data
     $('#user-info').html('Hej ' + user.displayName + '! Du är registrerad men omgången har redan påbörjats. Du kommer vara med nästa omgång');
   });
+}
+
+
+function displayTheWinner(name) {
+  $('#user-info').html(name + ' is the winner!').show();
+  $('#kill-code-form').hide();
+  $('#kip').hide();
 }
 
 function onAuthStateChanged(user) {
@@ -145,7 +162,15 @@ function onAuthStateChanged(user) {
     if ( ! user.displayName || user.displayName === 'Anonymous-name') { // only happens during manual registration, and the name is yet to be set
       $('#user-info').html('Laddar...');
     } else {
-      displayTheUserInfo();
+
+      firebase.database().ref('/winner').once('value').then((winnerSnap) => {
+        if (winnerSnap.exists() && winnerSnap.val()) {
+          displayTheWinner(winnerSnap.val());
+        } else {
+          displayTheUserInfo();
+        }
+      });
+
     }
 
     handleTokenPermission();

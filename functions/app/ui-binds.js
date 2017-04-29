@@ -114,10 +114,15 @@ $(() => {
 
 
   function noKillingInProgress() {
-    loadUserGameInfo().then(() => {
+    loadUserGameInfo().then((alive) => {
       $('#kip').hide();
-      $('#kill-code-form,#user-info').show();
+      $('#user-info').show();
       $('#killcode').val('');
+      if ( alive ) {
+        $('#kill-code-form').show();
+      } else {
+        $('#kill-code-form').hide();
+      }
     });
   }
 
@@ -155,18 +160,30 @@ $(() => {
     });
   });
 
+  function handleServiceWorkerMessage(data) {
+
+    if (data.hasOwnProperty('firebase-messaging-msg-type')) return;
+
+    if (data.new_target) {
+      noKillingInProgress();
+    }
+    if (data.winner) {
+      displayTheWinner(data.winner);
+    }
+  }
+
 
   messaging.onMessage((payload) => {
     console.log(payload);
-    if (payload && payload.data && payload.data.new_target) {
-      noKillingInProgress();
+    if (payload && payload.data) {
+      handleServiceWorkerMessage(payload.data);
     }
   });
 
   navigator.serviceWorker.addEventListener('message', function(event) { // will be called if the page is in the background
     console.log('Received a message from service worker: ', event.data);
-    if (event.data && event.data.new_target) {
-      noKillingInProgress();
+    if (event.data) {
+      handleServiceWorkerMessage(event.data);
     }
   });
 
