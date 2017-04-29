@@ -321,6 +321,8 @@ function registerUser(user) {
 
   let registerRef = fb.database().ref('/users/register');
 
+  let user_defined_name = !user.displayName;
+
   return registerRef.once('value').then(registerSnapshot => {
 
     let register_data = registerSnapshot.val();
@@ -331,12 +333,21 @@ function registerUser(user) {
     new_user[user.uid] = {
       code,
       email: user.email || 'email-not-set',
-      name: user.displayName || 'Anonymous-name'
+      name: user.displayName || 'Anonymous-name',
+      user_defined_name
     };
 
     return registerRef.update(new_user);
 
   });
+
+}
+
+function cloudFunctionRegisterUser(event) {
+
+  const user = event.data;
+
+  return registerUser(user);
 
 }
 

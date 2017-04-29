@@ -779,3 +779,43 @@
 2017.04.28 18:27:25 LOG5[34]: Connection closed: 0 byte(s) sent to TLS, 0 byte(s) sent to socket
 2017.04.28 18:28:45 LOG3[37]: transfer: s_poll_wait: TIMEOUTclose exceeded: closing
 2017.04.28 18:28:45 LOG5[37]: Connection closed: 119732 byte(s) sent to TLS, 3555 byte(s) sent to socket
+2017.04.30 01:12:07 LOG5[main]: stunnel 5.41 on x86-pc-msvc-1500 platform
+2017.04.30 01:12:07 LOG5[main]: Compiled/running with OpenSSL 1.0.2k-fips  26 Jan 2017
+2017.04.30 01:12:07 LOG5[main]: Threading:WIN32 Sockets:SELECT,IPv6 TLS:ENGINE,FIPS,OCSP,PSK,SNI
+2017.04.30 01:12:07 LOG5[main]: Reading configuration from file C:\Users\rr\Projects\killergame\dev_assets\stunnel.conf
+2017.04.30 01:12:07 LOG5[main]: UTF-8 byte order mark not detected
+2017.04.30 01:12:07 LOG5[main]: FIPS mode disabled
+2017.04.30 01:12:08 LOG5[main]: Configuration successful
+2017.04.30 01:12:22 LOG5[0]: Service [https] accepted connection from 127.0.0.1:62174
+2017.04.30 01:12:22 LOG5[0]: s_connect: connected 127.0.0.1:80
+2017.04.30 01:12:22 LOG5[0]: Service [https] connected remote server from 127.0.0.1:62183
+2017.04.30 01:12:22 LOG5[5]: Service [https] accepted connection from 127.0.0.1:62179
+2017.04.30 01:12:22 LOG5[4]: Service [https] accepted connection from 127.0.0.1:62178
+2017.04.30 01:12:22 LOG5[4]: s_connect: connected 127.0.0.1:80
+2017.04.30 01:12:22 LOG5[4]: Service [https] connected remote server from 127.0.0.1:62184
+2017.04.30 01:12:22 LOG5[3]: Service [https] accepted connection from 127.0.0.1:62177
+2017.04.30 01:12:22 LOG5[2]: Service [https] accepted connection from 127.0.0.1:62176
+2017.04.30 01:12:22 LOG5[5]: s_connect: connected 127.0.0.1:80
+2017.04.30 01:12:22 LOG5[5]: Service [https] connected remote server from 127.0.0.1:62185
+2017.04.30 01:12:22 LOG5[1]: Service [https] accepted connection from 127.0.0.1:62175
+2017.04.30 01:12:22 LOG5[2]: s_connect: connected 127.0.0.1:80
+2017.04.30 01:12:22 LOG5[2]: Service [https] connected remote server from 127.0.0.1:62186
+2017.04.30 01:12:22 LOG5[3]: s_connect: connected 127.0.0.1:80
+2017.04.30 01:12:22 LOG5[3]: Service [https] connected remote server from 127.0.0.1:62187
+2017.04.30 01:12:22 LOG5[1]: s_connect: connected 127.0.0.1:80
+2017.04.30 01:12:22 LOG5[1]: Service [https] connected remote server from 127.0.0.1:62188
+2017.04.30 01:13:08 LOG5[4]: Connection closed: 0 byte(s) sent to TLS, 0 byte(s) sent to socket
+2017.04.30 01:13:08 LOG5[2]: Connection closed: 0 byte(s) sent to TLS, 0 byte(s) sent to socket
+2017.04.30 01:13:08 LOG5[5]: Connection closed: 0 byte(s) sent to TLS, 0 byte(s) sent to socket
+2017.04.30 01:13:08 LOG5[1]: Connection closed: 0 byte(s) sent to TLS, 0 byte(s) sent to socket
+2017.04.30 01:13:08 LOG5[3]: Connection closed: 0 byte(s) sent to TLS, 0 byte(s) sent to socket
+2017.04.30 01:14:24 LOG3[0]: transfer: s_poll_wait: TIMEOUTclose exceeded: closing
+2017.04.30 01:14:24 LOG5[0]: Connection closed: 119732 byte(s) sent to TLS, 3495 byte(s) sent to socket
+2017.04.30 01:21:05 LOG5[6]: Service [https] accepted connection from 127.0.0.1:62922
+2017.04.30 01:21:05 LOG5[6]: s_connect: connected 127.0.0.1:80
+2017.04.30 01:21:05 LOG5[6]: Service [https] connected remote server from 127.0.0.1:62923
+2017.04.30 01:24:19 LOG3[6]: transfer: s_poll_wait: TIMEOUTclose exceeded: closing
+2017.04.30 01:24:19 LOG5[6]: Connection closed: 223064 byte(s) sent to TLS, 5128 byte(s) sent to socket
+2017.04.30 01:29:02 LOG5[7]: Service [https] accepted connection from 127.0.0.1:63629
+2017.04.30 01:29:02 LOG5[7]: s_connect: connected 127.0.0.1:80
+2017.04.30 01:29:02 LOG5[7]: Service [https] connected remote server from 127.0.0.1:63630
